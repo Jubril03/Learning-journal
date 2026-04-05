@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1510;
+    --paper: #faf6ef;
+    --cream: #f2ead8;
+    --amber: #c8832a;
+    --amber-light: #e8a84c;
+    --rust: #9c4a2b;
+    --sage: #5a7a5c;
+    --muted: #8a7d6a;
+    --line: #e0d5c2;
+    --shadow: rgba(26,21,16,0.08);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Subtle paper texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,120,0.07) 27px, rgba(180,160,120,0.07) 28px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Left margin line */
+  body::after {
+    content: '';
+    position: fixed;
+    left: 72px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(200,131,42,0.18);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 48px 0 32px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1.5px solid var(--line);
+    margin-bottom: 36px;
+  }
+
+  .logo-area h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .logo-area h1 span {
+    color: var(--amber);
+    font-style: italic;
+  }
+
+  .logo-area p {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .date-stamp {
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    line-height: 1.8;
+  }
+
+  .date-stamp strong {
+    font-family: 'DM Sans', sans-serif;
+    font-style: normal;
+    font-size: 1.1rem;
+    color: var(--ink);
+    display: block;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 32px;
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 4px;
+    border: 1px solid var(--line);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .tab:hover { color: var(--ink); }
+
+  .tab.active {
+    background: white;
+    color: var(--amber);
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  /* ── CARDS ── */
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--amber);
+    border-radius: 12px 0 0 12px;
+  }
+
+  .card.sage::before { background: var(--sage); }
+  .card.rust::before { background: var(--rust); }
+  .card.amber-light::before { background: var(--amber-light); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .card-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    background: var(--cream);
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .card-subtitle {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 1px;
+    font-weight: 300;
+  }
+
+  .prompt-text {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--paper);
+    resize: vertical;
+    min-height: 90px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  textarea:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(200,131,42,0.1);
+    background: white;
+  }
+
+  textarea::placeholder { color: #bdb0a0; }
+
+  /* ── RATING STARS ── */
+  .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .rating-label { font-size: 0.8rem; color: var(--muted); min-width: 110px; }
+
+  .stars { display: flex; gap: 3px; }
+
+  .star {
+    font-size: 1.3rem;
+    cursor: pointer;
+    opacity: 0.25;
+    transition: opacity 0.15s, transform 0.1s;
+    color: var(--amber);
+    user-select: none;
+  }
+
+  .star.lit { opacity: 1; }
+  .star:hover { transform: scale(1.15); }
+
+  /* ── MOOD PICKER ── */
+  .mood-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .mood-btn {
+    padding: 6px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 20px;
+    background: transparent;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .mood-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .mood-btn.selected { background: var(--amber); border-color: var(--amber); color: white; font-weight: 500; }
+
+  /* ── CHECKLIST ── */
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .checklist-item:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    color: white;
+  }
+
+  .checklist-item.checked .check-box {
+    background: var(--sage);
+    border-color: var(--sage);
+  }
+
+  .checklist-item.checked .check-box::after { content: '✓'; }
+
+  .check-text {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--ink);
+    transition: color 0.2s;
+  }
+
+  .checklist-item.checked .check-text { color: var(--muted); text-decoration: line-through; }
+
+  /* ── GOAL TRACKER ── */
+  .goal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .goal-input {
+    flex: 1;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    background: var(--paper);
+    outline: none;
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+
+  .goal-input:focus { border-color: var(--amber); background: white; }
+  .goal-input::placeholder { color: #bdb0a0; }
+
+  .goal-tag {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .tag-doing { background: #fff3e0; color: #c8832a; }
+  .tag-done { background: #e8f5e9; color: #5a7a5c; }
+  .tag-next { background: #f3e5f5; color: #7b4f8a; }
+
+  /* ── SAVE BAR ── */
+  .save-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 1px solid var(--line);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    box-shadow: 0 -4px 24px var(--shadow);
+  }
+
+  .save-info { font-size: 0.8rem; color: var(--muted); }
+  .save-info strong { color: var(--sage); }
+
+  .btn-save {
+    background: var(--amber);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-save:hover { background: #b5711e; }
+  .btn-save:active { transform: scale(0.97); }
+
+  .btn-clear {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 10px;
+  }
+
+  .btn-clear:hover { border-color: var(--rust); color: var(--rust); }
+
+  /* ── PAST ENTRIES ── */
+  .entry-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+
+  .entry-card:hover { box-shadow: 0 4px 16px var(--shadow); }
+
+  .entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .entry-date {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+
+  .entry-mood-badge {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    background: var(--cream);
+    border-radius: 10px;
+    color: var(--muted);
+  }
+
+  .entry-preview {
+    font-size: 0.85rem;
+    color: var(--ink);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .big-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 0.88rem; }
+
+  /* ── PROGRESS RING ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── SECTION TITLES ── */
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ── TWO COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  @media (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(3,1fr); }
+    .logo-area h1 { font-size: 1.8rem; }
+    body::after { display: none; }
+    .tabs { flex-wrap: wrap; }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 24px; right: 24px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: none; }
+
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #c8832a, #e8a84c);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo-area">
+      <h1>My <span>Learning</span> Journal</h1>
+      <p>Reflect · Grow · Track</p>
+    </div>
+    <div class="date-stamp">
+      <strong id="today-date"></strong>
+      <span id="today-day"></span><br>
+      <span class="streak-badge" id="streak-badge">🔥 0 day streak</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" onclick="switchTab('today')">📝 Today's Entry</button>
+    <button class="tab" onclick="switchTab('goals')">🎯 Goals</button>
+    <button class="tab" onclick="switchTab('history')">📚 Past Entries</button>
+    <button class="tab" onclick="switchTab('insights')">✨ Insights</button>
+  </nav>
+
+  <!-- TODAY'S ENTRY -->
+  <div id="tab-today" class="section active">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🌱</div>
+        <div>
+          <div class="card-title">What did I learn today?</div>
+          <div class="card-subtitle">The core insight — new knowledge, skill, or perspective</div>
+        </div>
+      </div>
+      <p class="prompt-text">Describe one key thing you learned. Be as specific as possible.</p>
+      <textarea id="field-learning" placeholder="Today I learned that…" rows="4"></textarea>
+    </div>
+
+    <div class="two-col">
+      <div class="card sage">
+        <div class="card-header">
+          <div class="card-icon">💡</div>
+          <div>
+            <div class="card-title">Key takeaway</div>
+            <div class="card-subtitle">In one sentence</div>
+          </div>
+        </div>
+        <textarea id="field-takeaway" placeholder="The most important thing was…" rows="3"></textarea>
+      </div>
+
+      <div class="card rust">
+        <div class="card-header">
+          <div class="card-icon">🔁</div>
+          <div>
+            <div class="card-title">I want to apply this by…</div>
+            <div class="card-subtitle">Concrete next action</div>
+          </div>
+        </div>
+        <textarea id="field-apply" placeholder="I'll put this into practice by…" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="card amber-light">
+      <div class="card-header">
+        <div class="card-icon">❓</div>
+        <div>
+          <div class="card-title">Questions still open</div>
+          <div class="card-subtitle">What am I still wondering about?</div>
+        </div>
+      </div>
+      <textarea id="field-questions" placeholder="I'm still wondering about… / I want to explore…" rows="3"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🌡️</div>
+        <div>
+          <div class="card-title">How did today feel?</div>
+          <div class="card-subtitle">Rate your learning experience</div>
+        </div>
+      </div>
+
+      <div class="rating-row">
+        <span class="rating-label">Engagement</span>
+        <div class="stars" id="stars-engagement">
+          <span class="star" onclick="setRating('engagement',1)">★</span>
+          <span class="star" onclick="setRating('engagement',2)">★</span>
+          <span class="star" onclick="setRating('engagement',3)">★</span>
+          <span class="star" onclick="setRating('engagement',4)">★</span>
+          <span class="star" onclick="setRating('engagement',5)">★</span>
+        </div>
+      </div>
+      <div class="rating-row">
+        <span class="rating-label">Understanding</span>
+        <div class="stars" id="stars-understanding">
+          <span class="star" onclick="setRating('understanding',1)">★</span>
+          <span class="star" onclick="setRating('understanding',2)">★</span>
+          <span class="star" onclick="setRating('understanding',3)">★</span>
+          <span class="star" onclick="setRating('understanding',4)">★</span>
+          <span class="star" onclick="setRating('understanding',5)">★</span>
+        </div>
+      </div>
+      <div class="rating-row">
+        <span class="rating-label">Motivation</span>
+        <div class="stars" id="stars-motivation">
+          <span class="star" onclick="setRating('motivation',1)">★</span>
+          <span class="star" onclick="setRating('motivation',2)">★</span>
+          <span class="star" onclick="setRating('motivation',3)">★</span>
+          <span class="star" onclick="setRating('motivation',4)">★</span>
+          <span class="star" onclick="setRating('motivation',5)">★</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <p class="prompt-text" style="margin-bottom:8px;">Overall mood</p>
+        <div class="mood-row" id="mood-row">
+          <button class="mood-btn" onclick="selectMood('😊 Energised')">😊 Energised</button>
+          <button class="mood-btn" onclick="selectMood('🤔 Curious')">🤔 Curious</button>
+          <button class="mood-btn" onclick="selectMood('😤 Frustrated')">😤 Frustrated</button>
+          <button class="mood-btn" onclick="selectMood('😌 Calm')">😌 Calm</button>
+          <button class="mood-btn" onclick="selectMood('🥱 Tired')">🥱 Tired</button>
+          <button class="mood-btn" onclick="selectMood('🔥 Focused')">🔥 Focused</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card sage">
+      <div class="card-header">
+        <div class="card-icon">🙏</div>
+        <div>
+          <div class="card-title">Gratitude & wins</div>
+          <div class="card-subtitle">What went well or what are you proud of?</div>
+        </div>
+      </div>
+      <textarea id="field-gratitude" placeholder="Today I'm grateful for… / A small win was…" rows="3"></textarea>
+    </div>
+
+  </div>
+
+  <!-- GOALS -->
+  <div id="tab-goals" class="section">
+    <h2 class="section-heading">🎯 My Learning Goals</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📌</div>
+        <div>
+          <div class="card-title">Short-term goals</div>
+          <div class="card-subtitle">This week / this month</div>
+        </div>
+      </div>
+      <div id="short-goals">
+        <div class="goal-item">
+          <input class="goal-input" type="text" placeholder="Add a short-term goal…">
+          <span class="goal-tag tag-doing">In progress</span>
+        </div>
+        <div class="goal-item">
+          <input class="goal-input" type="text" placeholder="Add a short-term goal…">
+          <span class="goal-tag tag-next">Up next</span>
+        </div>
+        <div class="goal-item">
+          <input class="goal-input" type="text" placeholder="Add a short-term goal…">
+          <span class="goal-tag tag-done">Done</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card rust">
+      <div class="card-header">
+        <div class="card-icon">🌟</div>
+        <div>
+          <div class="card-title">Long-term goals</div>
+          <div class="card-subtitle">3 months and beyond</div>
+        </div>
+      </div>
+      <div id="long-goals">
+        <div class="goal-item">
+          <input class="goal-input" type="text" placeholder="Add a long-term goal…">
+          <span class="goal-tag tag-next">Planned</span>
+        </div>
+        <div class="goal-item">
+          <input class="goal-input" type="text" placeholder="Add a long-term goal…">
+          <span class="goal-tag tag-doing">In progress</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">✅</div>
+        <div>
+          <div class="card-title">Daily reflection checklist</div>
+          <div class="card-subtitle">Habits to build into every session</div>
+        </div>
+      </div>
+      <div id="checklist">
+        <div class="checklist-item" onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-text">I
